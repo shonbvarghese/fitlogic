@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Health Planner</title>
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Oswald:wght@500;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Landing Page -->
+        <section id="landing-page" class="view active">
+            <nav class="landing-nav">
+                <div class="logo">FITSHARK</div>
+                <div class="nav-links">
+                    <a href="#">Home</a>
+                    <a href="#">Programs</a>
+                    <a href="#">About Us</a>
+                    <button class="btn-accent">Contact Us</button>
+                </div>
+            </nav>
+
+            <header class="hero-section">
+                <div class="hero-content">
+                    <h1>ENHANCING <span class="outline-text">THE FITNESS</span><br>
+                    WORKOUT EXPERIENCE<br>
+                    <span class="highlight-text">WITH INNOVATION</span></h1>
+                    <p>We are a complete ecosystem of high-quality fitness solutions. We offer high standard equipment and a variety of services to set up your gym from scratch.</p>
+                    <button class="btn-primary" onclick="scrollToGoals()">Explore More &rarr;</button>
+                </div>
+                <div class="hero-brands">
+                    <!-- Brand logos would go here, using text for now -->
+                    <span>ADIDAS</span>
+                    <span>UNDER ARMOUR</span>
+                    <span>GYMSHARK</span>
+                    <span>NIKE</span>
+                    <span>PUMA</span>
+                </div>
+            </header>
+
+            <section id="goal-selection" class="goals-section">
+                <h2>CHOOSE YOUR <span class="text-accent">GOAL</span></h2>
+                <p class="section-subtitle">Select your primary fitness objective to customize your dashboard.</p>
+                
+                <div class="goals-grid">
+                    <div class="goal-card" onclick="selectGoal('fat_loss')">
+                        <div class="icon">🔥</div>
+                        <h3>Fat Loss</h3>
+                        <p>Burn calories and shed weight effectively.</p>
+                    </div>
+                    <div class="goal-card" onclick="selectGoal('weight_gain')">
+                        <div class="icon">💪</div>
+                        <h3>Weight Gain</h3>
+                        <p>Build mass and increase your size.</p>
+                    </div>
+                    <div class="goal-card" onclick="selectGoal('muscle_building')">
+                        <div class="icon">🏋️‍♂️</div>
+                        <h3>Muscle Building</h3>
+                        <p>Tone up and strengthen your physique.</p>
+                    </div>
+                    <div class="goal-card" onclick="selectGoal('general_fitness')">
+                        <div class="icon">❤️</div>
+                        <h3>General Fitness</h3>
+                        <p>Maintain health and improve endurance.</p>
+                    </div>
+                </div>
+            </section>
+        </section>
+
+        <!-- Sidebar (Hidden initially) -->
+        <aside class="sidebar hidden" id="app-sidebar">
+            <div class="logo">
+                <h2>FITSHARK</h2>
+            </div>
+            <nav>
+                <button class="nav-btn active" onclick="showView('dashboard')">Dashboard</button>
+                <button class="nav-btn" onclick="showView('meal-planner')">Meal Planner</button>
+                <button class="nav-btn">Workout Logger</button>
+                <button class="nav-btn">Settings</button>
+                <button class="nav-btn" onclick="logout()">Exit</button>
+            </nav>
+        </aside>
+
+        <!-- Main Content (Hidden initially) -->
+        <main class="main-content hidden" id="app-main">
+            <!-- Dashboard View -->
+            <section id="dashboard" class="view hidden">
+                <header>
+                    <h1>Health Dashboard</h1>
+                    <p>Welcome back! Here's your daily summary.</p>
+                </header>
+
+                <div class="dashboard-grid">
+                    <!-- Calories Card -->
+                    <div class="card glass">
+                        <h3>Calories</h3>
+                        <div class="stat-value">
+                            <span id="cal-consumed">0</span>
+                            <span class="stat-sub">/ <span id="cal-goal">0</span> kcal</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="cal-progress" class="progress-bar-fill"></div>
+                        </div>
+                        <div class="stat-details">
+                            <span>Burned: <span id="cal-burned">0</span> kcal</span>
+                            <span>Net: <span id="cal-net">0</span></span>
+                        </div>
+                    </div>
+
+                    <!-- Activity Chart Placeholder -->
+                    <div class="card glass">
+                        <h3>Weekly Activity</h3>
+                        <div class="chart-container">
+                            <div class="bar" style="height: 40%"></div>
+                            <div class="bar" style="height: 70%"></div>
+                            <div class="bar" style="height: 50%"></div>
+                            <div class="bar" style="height: 90%"></div>
+                            <div class="bar" style="height: 60%"></div>
+                            <div class="bar" style="height: 80%"></div>
+                            <div class="bar" style="height: 45%"></div>
+                        </div>
+                        <div class="chart-labels">
+                            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                        </div>
+                    </div>
+
+                    <!-- Water Intake -->
+                    <div class="card glass water-card">
+                        <h3>Water Intake</h3>
+                        <div class="water-stat">
+                            <span id="water-count">0</span>
+                            <div class="water-info">
+                                <span class="unit">Glasses</span>
+                                <span class="goal">Goal: <span id="water-goal">0</span></span>
+                            </div>
+                        </div>
+                        <button id="add-water-btn" class="action-btn">+ Add Glass</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Meal Planner View -->
+            <section id="meal-planner" class="view hidden">
+                <header class="flex-header">
+                    <div>
+                        <h1>Meal Planner</h1>
+                        <p>Schedule your nutrition for the week.</p>
+                    </div>
+                    <button class="primary-btn">Save Plan</button>
+                </header>
+
+                <div class="planner-container">
+                    <div class="planner-grid" id="planner-grid">
+                        <!-- Grid will be populated by JS -->
+                    </div>
+                </div>
+
+                <div class="favorites-section">
+                    <h3>Favorites (Drag to schedule)</h3>
+                    <div class="favorites-list">
+                        <div class="fav-item" draggable="true">Chicken Salad</div>
+                        <div class="fav-item" draggable="true">Protein Shake</div>
+                        <div class="fav-item" draggable="true">Avocado Toast</div>
+                        <div class="fav-item" draggable="true">Pasta Primavera</div>
+                        <div class="fav-item" draggable="true">Greek Yogurt</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <script src="js/app.js"></script>
+</body>
+</html>
