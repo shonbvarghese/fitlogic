@@ -3,231 +3,232 @@ let currentView = 'landing-page';
 const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
 const mealTypes = ['Breakfast', 'Lunch', 'Dinner', 'Snack'];
 
-// DOM Elements
-const views = {
-    'landing-page': document.getElementById('landing-page'),
-    dashboard: document.getElementById('dashboard'),
-    'meal-planner': document.getElementById('meal-planner')
+// Global Error Handler for easier debugging
+window.onerror = function (msg, url, lineNo, columnNo, error) {
+    console.error('JS Error:', msg, url, lineNo);
+    alert('JS Error: ' + msg); // Alert will help the user see if something breaks
+    return false;
 };
-
-const appSidebar = document.getElementById('app-sidebar');
-const appMain = document.getElementById('app-main');
 
 // Initialization
 document.addEventListener('DOMContentLoaded', () => {
-    // Initially show landing page, hide app interface
-    showView('landing-page');
+    console.log('App Initializing...');
+    const token = localStorage.getItem('token');
+    const isDashboard = window.location.pathname.includes('dashboard.html');
+
+    if (token) {
+        if (!isDashboard) window.location.href = '/dashboard.html';
+        else showView('dashboard');
+    } else {
+        if (isDashboard) window.location.href = '/index.html';
+        else showView('landing-page');
+    }
     initMealPlanner();
     setupDragAndDrop();
 });
 
-// Navigation
+// Navigation function called by buttons
 function showView(viewName) {
-    // Handle App vs Landing Page Layout
-    if (viewName === 'landing-page') {
-        appSidebar.classList.add('hidden');
-        appMain.classList.add('hidden');
-        views['landing-page'].classList.remove('hidden');
+    console.log('Navigating to:', viewName);
+
+    // Get fresh references to prevent null issues
+    const views = {
+        'landing-page': document.getElementById('landing-page'),
+        'auth-view': document.getElementById('auth-view'),
+        'dashboard': document.getElementById('dashboard'),
+        'meal-planner': document.getElementById('meal-planner'),
+        'ai-planner': document.getElementById('ai-planner')
+    };
+
+    // Cross-page check
+    if ((viewName === 'landing-page' || viewName === 'auth-view') && window.location.pathname.includes('dashboard.html')) {
+        window.location.href = '/index.html';
+        return;
+    }
+
+    if (['dashboard', 'meal-planner', 'ai-planner'].includes(viewName) && !window.location.pathname.includes('dashboard.html')) {
+        window.location.href = '/dashboard.html';
+        return;
+    }
+
+    const sidebar = document.getElementById('app-sidebar');
+    const main = document.getElementById('app-main');
+
+    // Auth Check
+    if (['dashboard', 'meal-planner', 'ai-planner'].includes(viewName)) {
+        if (!localStorage.getItem('token')) {
+            showView('auth-view');
+            return;
+        }
+    }
+
+    // Reset all views
+    Object.values(views).forEach(v => {
+        if (v) {
+            v.classList.add('hidden');
+            v.style.display = 'none';
+        }
+    });
+
+    // Handle Layout
+    if (viewName === 'landing-page' || viewName === 'auth-view') {
+        if (sidebar) sidebar.classList.add('hidden');
+        if (main) main.classList.add('hidden');
+
+        const target = views[viewName];
+        if (target) {
+            target.classList.remove('hidden');
+            target.style.display = (viewName === 'auth-view') ? 'flex' : 'block';
+        }
     } else {
-        appSidebar.classList.remove('hidden');
-        appMain.classList.remove('hidden');
-        views['landing-page'].classList.add('hidden');
-        
-        // Hide all app views first
-        Object.keys(views).forEach(key => {
-            if (key !== 'landing-page') views[key].classList.add('hidden');
-        });
-        
-        // Show specific app view
-        views[viewName].classList.remove('hidden');
-        
-        // Load data
+        if (sidebar) sidebar.classList.remove('hidden');
+        if (main) main.classList.remove('hidden');
+
+        const target = views[viewName];
+        if (target) {
+            target.classList.remove('hidden');
+            target.style.display = 'block';
+        }
+
         if (viewName === 'dashboard') loadDashboardData();
         if (viewName === 'meal-planner') loadMealPlan();
     }
 
-    // Update Sidebar Active State
+    // Sidebar active state
     document.querySelectorAll('.nav-btn').forEach(btn => {
         btn.classList.remove('active');
-        if (btn.textContent.toLowerCase().replace(' ', '-') === viewName) {
+        if (btn.textContent.toLowerCase().includes(viewName.split('-')[0])) {
             btn.classList.add('active');
+        }
+    });
+
+    currentView = viewName;
+}
+
+// Data Loading
+async function loadDashboardData() {
+    try {
+        const response = await authFetch('/api/dashboard');
+        if (!response) return;
+        const data = await response.json();
+        updateDashboardUI(data);
+    } catch (e) { console.error(e); }
+}
+
+function updateDashboardUI(data) {
+    if (!data || !data.stats) return;
+    const { stats, profile } = data;
+
+    const calCons = document.getElementById('cal-consumed');
+    const calGoal = document.getElementById('cal-goal');
+    const calBurn = document.getElementById('cal-burned');
+    const calNet = document.getElementById('cal-net');
+
+    if (calCons) calCons.textContent = stats.caloriesConsumed;
+    if (calGoal) calGoal.textContent = profile.dailyCalorieGoal || 2000;
+    if (calBurn) calBurn.textContent = stats.caloriesBurned;
+    if (calNet) calNet.textContent = stats.caloriesConsumed - stats.caloriesBurned;
+
+    const prog = document.getElementById('cal-progress');
+    if (prog) {
+        const percentage = Math.min((stats.caloriesConsumed / (profile.dailyCalorieGoal || 2000)) * 100, 100);
+        prog.style.width = percentage + '%';
+    }
+
+    const waterVal = document.getElementById('water-count');
+    const waterG = document.getElementById('water-goal');
+    if (waterVal) waterVal.textContent = stats.waterIntake;
+    if (waterG) waterG.textContent = profile.waterGoal || 8;
+}
+
+// Water Actions
+const addWaterBtn = document.getElementById('add-water-btn');
+if (addWaterBtn) {
+    addWaterBtn.addEventListener('click', async () => {
+        const res = await authFetch('/api/dashboard/water/add', { method: 'POST' });
+        if (res) {
+            const data = await res.json();
+            const w = document.getElementById('water-count');
+            if (w) w.textContent = data.waterIntake;
         }
     });
 }
 
-function scrollToGoals() {
-    document.getElementById('goal-selection').scrollIntoView({ behavior: 'smooth' });
-}
-
-function selectGoal(goal) {
-    console.log('Selected Goal:', goal);
-    // Here you would typically save the goal to the backend
-    // For now, we just transition to the dashboard
-    showView('dashboard');
-}
-
-function logout() {
-    showView('landing-page');
-}
-
-// Dashboard Logic
-async function loadDashboardData() {
-    try {
-        const response = await fetch('/api/dashboard');
-        const data = await response.json();
-        
-        updateDashboardUI(data);
-    } catch (error) {
-        console.error('Error loading dashboard:', error);
-    }
-}
-
-function updateDashboardUI(data) {
-    const { stats, profile } = data;
-
-    // Calories
-    document.getElementById('cal-consumed').textContent = stats.caloriesConsumed;
-    document.getElementById('cal-goal').textContent = profile.dailyCalorieGoal;
-    document.getElementById('cal-burned').textContent = stats.caloriesBurned;
-    document.getElementById('cal-net').textContent = stats.caloriesConsumed - stats.caloriesBurned;
-
-    // Progress Bar
-    const percentage = Math.min((stats.caloriesConsumed / profile.dailyCalorieGoal) * 100, 100);
-    document.getElementById('cal-progress').style.width = `${percentage}%`;
-
-    // Water
-    document.getElementById('water-count').textContent = stats.waterIntake;
-    document.getElementById('water-goal').textContent = profile.waterGoal;
-}
-
-// Water Button
-document.getElementById('add-water-btn').addEventListener('click', async () => {
-    try {
-        const response = await fetch('/api/water/add', { method: 'POST' });
-        const data = await response.json();
-        document.getElementById('water-count').textContent = data.waterIntake;
-    } catch (error) {
-        console.error('Error adding water:', error);
-    }
-});
-
-// Meal Planner Logic
+// Planner
 function initMealPlanner() {
     const grid = document.getElementById('planner-grid');
-    grid.innerHTML = ''; // Clear
+    if (!grid) return;
+    grid.innerHTML = '';
 
-    // Header Row (Days)
+    // Header
     const corner = document.createElement('div');
     corner.className = 'grid-header';
-    corner.textContent = 'Meal Type';
+    corner.textContent = 'Meal';
     grid.appendChild(corner);
 
-    days.forEach(day => {
-        const header = document.createElement('div');
-        header.className = 'grid-header';
-        header.textContent = day.slice(0, 3);
-        grid.appendChild(header);
+    days.forEach(d => {
+        const h = document.createElement('div');
+        h.className = 'grid-header';
+        h.textContent = d.slice(0, 3);
+        grid.appendChild(h);
     });
 
-    // Rows
     mealTypes.forEach(type => {
-        // Row Label
         const label = document.createElement('div');
         label.className = 'meal-type-label';
         label.textContent = type;
         grid.appendChild(label);
 
-        // Slots
         days.forEach(day => {
             const slot = document.createElement('div');
             slot.className = 'meal-slot';
             slot.dataset.day = day;
             slot.dataset.type = type;
-            
-            // Allow Drop
-            slot.addEventListener('dragover', handleDragOver);
-            slot.addEventListener('dragleave', handleDragLeave);
+            slot.addEventListener('dragover', e => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); });
+            slot.addEventListener('dragleave', e => e.currentTarget.classList.remove('drag-over'));
             slot.addEventListener('drop', handleDrop);
-
             grid.appendChild(slot);
         });
     });
 }
 
 async function loadMealPlan() {
-    try {
-        const response = await fetch('/api/meals');
-        const plan = await response.json();
-        
-        // Populate slots
-        document.querySelectorAll('.meal-slot').forEach(slot => {
-            const day = slot.dataset.day;
-            const type = slot.dataset.type;
-            
-            if (plan[day] && plan[day][type]) {
-                slot.textContent = plan[day][type];
-                slot.classList.add('filled');
-            } else {
-                slot.textContent = '';
-                slot.classList.remove('filled');
-            }
-        });
-    } catch (error) {
-        console.error('Error loading meal plan:', error);
-    }
-}
-
-// Drag and Drop Logic
-let draggedItem = null;
-
-function setupDragAndDrop() {
-    document.querySelectorAll('.fav-item').forEach(item => {
-        item.addEventListener('dragstart', (e) => {
-            draggedItem = e.target.textContent;
-            e.dataTransfer.setData('text/plain', draggedItem);
-            e.target.style.opacity = '0.5';
-        });
-
-        item.addEventListener('dragend', (e) => {
-            e.target.style.opacity = '1';
-            draggedItem = null;
-        });
+    const res = await authFetch('/api/dashboard/meals');
+    if (!res) return;
+    const plan = await res.json();
+    document.querySelectorAll('.meal-slot').forEach(slot => {
+        const { day, type } = slot.dataset;
+        if (plan[day] && plan[day][type]) {
+            slot.textContent = plan[day][type];
+            slot.classList.add('filled');
+        }
     });
-}
-
-function handleDragOver(e) {
-    e.preventDefault();
-    e.currentTarget.classList.add('drag-over');
-}
-
-function handleDragLeave(e) {
-    e.currentTarget.classList.remove('drag-over');
 }
 
 async function handleDrop(e) {
     e.preventDefault();
     const slot = e.currentTarget;
     slot.classList.remove('drag-over');
-    
-    const mealName = e.dataTransfer.getData('text/plain');
-    
-    if (mealName) {
-        // Optimistic UI Update
-        slot.textContent = mealName;
-        
-        // API Call
-        const day = slot.dataset.day;
-        const type = slot.dataset.type;
-        
-        try {
-            await fetch('/api/meals', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ day, type, meal: mealName })
-            });
-        } catch (error) {
-            console.error('Error saving meal:', error);
-            slot.textContent = 'Error'; // Revert or show error
-        }
+    const meal = e.dataTransfer.getData('text/plain');
+    if (meal) {
+        slot.textContent = meal;
+        const { day, type } = slot.dataset;
+        await authFetch('/api/dashboard/meals', {
+            method: 'POST',
+            body: JSON.stringify({ day, type, meal })
+        });
     }
+}
+
+function setupDragAndDrop() {
+    document.querySelectorAll('.fav-item').forEach(item => {
+        item.addEventListener('dragstart', e => {
+            e.dataTransfer.setData('text/plain', e.target.textContent);
+        });
+    });
+}
+
+function logout() {
+    localStorage.clear();
+    location.reload();
 }

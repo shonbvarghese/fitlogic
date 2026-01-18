@@ -1,0 +1,74 @@
+[
+  {
+    "name": "shon",
+    "email": "shonbvarghese2027@cs.ajce.in",
+    "password": "$2b$10$0/ea1n.drNz/VNKbswCu9O.ZLzYqIo8sNF8O6hdumEppUcH/aWC.2",
+    "_id": "1768753428779",
+    "currentMealPlan": {},
+    "todayStats": {
+      "caloriesConsumed": 0,
+      "caloriesBurned": 0,
+      "waterIntake": 0,
+      "date": "2026-01-18T16:23:48.779Z"
+    },
+    "goal": "general fitness"
+  },
+  {
+    "name": "shon",
+    "email": "test@gmail.com",
+    "password": "$2b$10$31Cd8aisU7Vg2Pe6Aov98Ouf46yRqaXM690uoW04M7pHMZDtBT5Mu",
+    "_id": "1768754691205",
+    "currentMealPlan": {
+      "Monday": {
+        "Breakfast": "Power Scramble: 4 scrambled eggs on 2 slices whole-wheat toast, with avocado slices and a bowl of mixed berries (~800 kcal)",
+        "Lunch": "Mediterranean Chicken and Rice Bowl: 150g grilled chicken breast, 1.5 cups brown rice, large serving of roasted zucchini/peppers, and hummus (~950 kcal)",
+        "Dinner": "Sheet Pan Salmon: 200g baked salmon fillet, large roasted sweet potato, and asparagus drizzled with olive oil (~1050 kcal)",
+        "Snack": "Greek Yogurt Bowl: 200g full-fat Greek yogurt mixed with 1 scoop whey protein, honey, and walnuts (~600 kcal)"
+      },
+      "Tuesday": {
+        "Breakfast": "Protein Oatmeal: 1 cup oats cooked with water/milk, 1 scoop vanilla whey protein, topped with 1 banana and 2 tbsp peanut butter (~850 kcal)",
+        "Lunch": "Turkey and Whole-Wheat Wraps: 180g lean ground turkey mixed with cheese and spinach, served in two large tortillas. Side of baby carrots and apple (~900 kcal)",
+        "Dinner": "Steak and Mash: 200g sirloin steak (lean cut), large serving of mashed potatoes (milk/butter added), and green beans (~1000 kcal)",
+        "Snack": "Cottage Cheese: 1 cup cottage cheese with pineapple chunks and 1 oz almonds (~650 kcal)"
+      },
+      "Wednesday": {
+        "Breakfast": "Whole-Wheat Bagel with cream cheese, 100g smoked salmon, and sliced red onion (~800 kcal)",
+        "Lunch": "Custom Burrito Bowl: 150g grilled steak/chicken, 1.5 cups white rice, black beans, corn, salsa, and guacamole (~950 kcal)",
+        "Dinner": "Chicken Stir-fry: 180g diced chicken breast sautéed with a large portion of mixed stir-fry vegetables (heavy oil), served over 1 cup quinoa (~1000 kcal)",
+        "Snack": "Post-Workout Shake: 2 scoops whey protein mixed with milk and 1/2 cup rolled oats (~650 kcal)"
+      },
+      "Thursday": {
+        "Breakfast": "Power Smoothie: Milk, 1 scoop protein, 1/2 cup oats, spinach, frozen mango, and 2 tbsp almond butter (~850 kcal)",
+        "Lunch": "Leftover Chicken Stir-fry and Quinoa (larger serving) (~900 kcal)",
+        "Dinner": "Lean Ground Beef Pasta: 150g cooked lean beef mince, large serving of whole-wheat spaghetti, tomato sauce, and parmesan cheese (~1000 kcal)",
+        "Snack": "High-Calorie Bar and a handful of mixed nuts/seeds (~650 kcal)"
+      },
+      "Friday": {
+        "Breakfast": "Greek Yogurt Parfait: Layers of Greek yogurt, 1 cup granola, and mixed berries (~800 kcal)",
+        "Lunch": "Tuna Salad Sandwich: 1 large can of tuna mixed with light mayo/mustard, served on 2 slices of whole-wheat bread. Large side of grapes (~900 kcal)",
+        "Dinner": "Simple Chicken Curry: 180g chicken breast in a coconut milk-based curry, served with 1.5 cups basmati rice (~1050 kcal)",
+        "Snack": "Rice Cakes (3) topped with peanut butter and banana slices (~650 kcal)"
+      },
+      "Saturday": {
+        "Breakfast": "Protein Pancakes: 4 large pancakes (made with added protein powder), topped with syrup and a side of 3 scrambled eggs (~900 kcal)",
+        "Lunch": "Homemade Beef Burgers: Two lean beef patties, whole-wheat buns, cheese, and a side of oven-baked potato wedges (~1000 kcal)",
+        "Dinner": "Fish Tacos: 4 white fish (cod/tilapia) tacos with shredded cabbage, fresh salsa, avocado, and corn tortillas (~950 kcal)",
+        "Snack": "Trail Mix: Large serving of trail mix (nuts, seeds, dried fruit) and a glass of milk (~550 kcal)"
+      },
+      "Sunday": {
+        "Breakfast": "Overnight Oats: Oats, chia seeds, milk, protein powder, topped with walnuts and maple syrup (~800 kcal)",
+        "Lunch": "Large Chicken Caesar Salad: 150g grilled chicken, ample Caesar dressing, croutons, and parmesan cheese (ensure full-fat dressing for caloric density) (~950 kcal)",
+        "Dinner": "Beef Chili Con Carne: Large bowl of beef chili (200g meat base) topped with sour cream and served with a side of corn chips (~1050 kcal)",
+        "Snack": "3 Hard-boiled eggs and an orange (~600 kcal)"
+      }
+    },
+    "todayStats": {
+      "caloriesConsumed": 0,
+      "caloriesBurned": 0,
+      "waterIntake": 3,
+      "date": "2026-01-18T16:44:51.206Z"
+    },
+    "goal": "general fitness",
+    "dailyCalorieGoal": 3400
+  }
+]

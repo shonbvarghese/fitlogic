@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Smart Health Planner</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Oswald:wght@500;700&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="app-sidebar">
+            <div class="logo">
+                <h2>FITSHARK</h2>
+            </div>
+            <nav>
+                <button class="nav-btn active" onclick="showView('dashboard')"><span>📊</span> Dashboard</button>
+                <button class="nav-btn" onclick="showView('meal-planner')"><span>🥗</span> Meal Planner</button>
+                <button class="nav-btn" onclick="showView('ai-planner')"><span>🤖</span> AI Planner</button>
+                <button class="nav-btn"><span>🏋️</span> Logger</button>
+                <button class="nav-btn"><span>⚙️</span> Settings</button>
+                <button class="nav-btn" onclick="logout()"><span>🚪</span> Exit</button>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content" id="app-main">
+            <!-- Dashboard View -->
+            <section id="dashboard" class="view">
+                <header>
+                    <h1>Health Dashboard</h1>
+                    <p>Welcome back! Here's your daily summary.</p>
+                </header>
+
+                <div class="dashboard-grid">
+                    <div class="card glass">
+                        <h3>Calories</h3>
+                        <div class="stat-value">
+                            <span id="cal-consumed">0</span>
+                            <span class="stat-sub">/ <span id="cal-goal">0</span> kcal</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div id="cal-progress" class="progress-bar-fill"></div>
+                        </div>
+                        <div class="stat-details">
+                            <span>Burned: <span id="cal-burned">0</span> kcal</span>
+                            <span>Net: <span id="cal-net">0</span></span>
+                        </div>
+                    </div>
+
+                    <div class="card glass">
+                        <h3>Weekly Activity</h3>
+                        <div class="chart-container">
+                            <div class="bar" style="height: 40%"></div>
+                            <div class="bar" style="height: 70%"></div>
+                            <div class="bar" style="height: 50%"></div>
+                            <div class="bar" style="height: 90%"></div>
+                            <div class="bar" style="height: 60%"></div>
+                            <div class="bar" style="height: 80%"></div>
+                            <div class="bar" style="height: 45%"></div>
+                        </div>
+                        <div class="chart-labels">
+                            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                        </div>
+                    </div>
+
+                    <div class="card glass water-card">
+                        <h3>Water Intake</h3>
+                        <div class="water-stat">
+                            <span id="water-count">0</span>
+                            <div class="water-info">
+                                <span class="unit">Glasses</span>
+                                <span class="goal">Goal: <span id="water-goal">0</span></span>
+                            </div>
+                        </div>
+                        <button id="add-water-btn" class="action-btn">+ Add Glass</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Meal Planner View -->
+            <section id="meal-planner" class="view hidden">
+                <header class="flex-header">
+                    <div>
+                        <h1>Meal Planner</h1>
+                        <p>Schedule your nutrition for the week.</p>
+                    </div>
+                    <button class="primary-btn">Save Plan</button>
+                </header>
+
+                <div class="planner-container">
+                    <div class="planner-grid" id="planner-grid"></div>
+                </div>
+
+                <div class="favorites-section">
+                    <h3>Favorites (Drag to schedule)</h3>
+                    <div class="favorites-list">
+                        <div class="fav-item" draggable="true">Chicken Salad</div>
+                        <div class="fav-item" draggable="true">Protein Shake</div>
+                        <div class="fav-item" draggable="true">Avocado Toast</div>
+                        <div class="fav-item" draggable="true">Pasta Primavera</div>
+                        <div class="fav-item" draggable="true">Greek Yogurt</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- AI Diet Planner View -->
+            <section id="ai-planner" class="view hidden">
+                <header>
+                    <h1>AI Diet Planner</h1>
+                    <p>Get a personalized 7-day meal plan based on your physiology and goals.</p>
+                </header>
+
+                <div class="diet-form-container card glass">
+                    <form id="diet-form">
+                        <div class="form-grid">
+                            <div class="form-group">
+                                <label>Age</label>
+                                <input type="number" name="age" required placeholder="e.g. 25">
+                            </div>
+                            <div class="form-group">
+                                <label>Gender</label>
+                                <select name="gender" required>
+                                    <option value="male">Male</option>
+                                    <option value="female">Female</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Height (cm)</label>
+                                <input type="number" name="height" required placeholder="e.g. 175">
+                            </div>
+                            <div class="form-group">
+                                <label>Weight (kg)</label>
+                                <input type="number" name="weight" required placeholder="e.g. 70">
+                            </div>
+                            <div class="form-group">
+                                <label>Fitness Goal</label>
+                                <select name="goal" required>
+                                    <option value="fat loss">Fat Loss</option>
+                                    <option value="muscle gain">Muscle Gain</option>
+                                    <option value="weight gain">Weight Gain</option>
+                                    <option value="maintenance">Maintenance</option>
+                                    <option value="general fitness">General Fitness</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Activity Level</label>
+                                <select name="activity_level" required>
+                                    <option value="low">Low (Sedentary)</option>
+                                    <option value="moderate">Moderate</option>
+                                    <option value="high">High (Active)</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Diet Preference</label>
+                                <select name="diet_type" required>
+                                    <option value="vegetarian">Vegetarian</option>
+                                    <option value="non-vegetarian">Non-Vegetarian</option>
+                                    <option value="vegan">Vegan</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Region</label>
+                                <select name="region" required>
+                                    <option value="Indian">Indian</option>
+                                    <option value="Kerala-style">Kerala-style</option>
+                                    <option value="International">International</option>
+                                </select>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary" style="margin-top: 2rem; width: 100%;">Generate
+                            Plan</button>
+                    </form>
+                </div>
+
+                <div id="diet-results" class="hidden" style="margin-top: 2rem;">
+                    <div class="result-header">
+                        <h2>Your Personalized Plan</h2>
+                        <p class="text-accent">Daily Target: <span id="target-calories"></span> kcal</p>
+                    </div>
+                    <div class="planner-container">
+                        <div class="planner-grid" id="ai-planner-grid"></div>
+                    </div>
+                    <button class="btn-primary" onclick="applyToMainPlanner()">Use This Plan</button>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Multi-page logic -->
+    <script>
+        // Check Auth
+        if (!localStorage.getItem('token')) {
+            window.location.href = '/index.html';
+        }
+    </script>
+    <script src="js/auth.js?v=3"></script>
+    <script src="js/app.js?v=3"></script>
+    <script src="js/diet.js?v=3"></script>
+</body>
+
+</html>
