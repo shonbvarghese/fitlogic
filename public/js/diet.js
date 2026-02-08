@@ -35,9 +35,29 @@ document.getElementById('diet-form').addEventListener('submit', async (e) => {
 
         const result = await response.json();
 
-        if (result.success) {
+        if (response.ok && result.success) {
             currentPlanData = { plan: result.plan, targetCalories: result.targetCalories };
             displayDietResult(result);
+
+            // Show cache indicator if applicable
+            if (result.cached) {
+                const resultsDiv = document.getElementById('diet-results');
+                const cacheNotice = document.createElement('div');
+                cacheNotice.className = 'cache-notice';
+                cacheNotice.innerHTML = '✓ Loaded from cache (saved API quota)';
+                cacheNotice.style.cssText = 'background: #d4edda; color: #155724; padding: 10px; border-radius: 5px; margin: 10px 0; text-align: center;';
+                resultsDiv.insertBefore(cacheNotice, resultsDiv.firstChild);
+            }
+        } else if (response.status === 400 && result.error === 'API_KEY_EXPIRED') {
+            // Handle expired API key
+            alert('🔑 API Key Expired\n\n' +
+                (result.message || 'Your Google Gemini API key has expired.') + '\n\n' +
+                'Get a new key at: ' + (result.helpUrl || 'https://aistudio.google.com/app/apikey'));
+        } else if (response.status === 429) {
+            // Handle rate limit specifically
+            alert('⚠️ API Quota Exceeded\n\n' +
+                (result.message || 'Too many requests. Please try again later.') + '\n\n' +
+                (result.retryAfter || 'Wait a few minutes before trying again.'));
         } else {
             alert('Failed to generate plan: ' + (result.message || 'Unknown error'));
         }
@@ -60,7 +80,7 @@ function displayDietResult(result) {
 
     // Populate Grid
     const grid = document.getElementById('ai-planner-grid');
-    grid.innerHTML = ''; // Clear
+    grid.innerHTML = '';
 
     // Header Row (Days)
     const corner = document.createElement('div');
@@ -77,60 +97,52 @@ function displayDietResult(result) {
 
     // Rows
     dietMealTypes.forEach(type => {
-        // Row Label
         const label = document.createElement('div');
         label.className = 'meal-type-label';
         label.textContent = type;
         grid.appendChild(label);
 
-        // Slots
         dietDays.forEach(day => {
             const slot = document.createElement('div');
-            slot.className = 'meal-slot';
-            slot.classList.add('filled'); // Mark as filled for potential styling
+            slot.className = 'meal-slot filled';
 
-            // Get data from the result plan
             if (result.plan[day] && result.plan[day][type]) {
                 let mealText = result.plan[day][type];
-                // Clean up string object if needed
                 if (typeof mealText === 'object') mealText = mealText.name;
-                slot.textContent = mealText;
-                slot.title = mealText;
+
+                // Use default badge logic for AI results
+                slot.innerHTML = `
+                    <div style="font-weight: 700; margin-bottom: 8px;">${mealText}</div>
+                    <div style="font-size: 0.8rem; color: var(--text-muted); line-height: 1.5;">Strategy Insight: High-precision suggestion based on your physiology.</div>
+                    <div class="meal-badge badge-energy">AI Strategy</div>
+                `;
+            } else {
+                slot.textContent = 'Empty';
             }
 
             grid.appendChild(slot);
         });
     });
 
-    // Scroll to results
     resultsDiv.scrollIntoView({ behavior: 'smooth' });
 }
 
 async function applyToMainPlanner() {
     if (!currentPlanData) return;
 
-    // Save to backend profile
-    // This requires authentication.
     try {
-        if (typeof authFetch !== 'function') {
-            console.error("authFetch not found");
-            return;
-        }
-
         const response = await authFetch('/api/diet/save', {
             method: 'POST',
             body: JSON.stringify(currentPlanData)
         });
 
         if (response && response.ok) {
-            alert('Plan saved to your profile!');
+            alert('Plan precision-engineered to your profile! ✨');
             if (typeof showView === 'function') {
                 showView('meal-planner');
-                // Trigger reload of meal planner
-                if (window.loadMealPlan) window.loadMealPlan();
+                if (window.initMealPlanner) window.initMealPlanner();
             }
         }
-        // If not ok, authFetch handles 401. If 500, we alerting might be good.
     } catch (error) {
         console.error("Error saving plan", error);
         alert("Failed to save plan.");

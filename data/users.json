@@ -4,14 +4,92 @@
     "email": "shonbvarghese2027@cs.ajce.in",
     "password": "$2b$10$0/ea1n.drNz/VNKbswCu9O.ZLzYqIo8sNF8O6hdumEppUcH/aWC.2",
     "_id": "1768753428779",
-    "currentMealPlan": {},
+    "currentMealPlan": {
+      "Monday": {
+        "Breakfast": "2 Puttu (Red Rice, steamed) with Kadala Curry (Chickpea, moderate coconut milk) (~480 kcal)",
+        "Lunch": "1 cup Brown Rice + Fish Curry (Mathi/Sardine, without coconut milk) + Thoran (Green Beans stir-fry) (~650 kcal)",
+        "Dinner": "2 Egg Roast (2 eggs, minimal oil) + 2 Whole Wheat Chapatis (~520 kcal)",
+        "Snack": "1 medium Apple + Handful of Peanuts (approx 15g) (~350 kcal)"
+      },
+      "Tuesday": {
+        "Breakfast": "3 Idiyappam (String Hoppers) + 1 Egg Curry (low oil) (~490 kcal)",
+        "Lunch": "Kappa (Tapioca, moderate portion 1.5 cups) + Meen Mulakittathu (Spicy Red Fish Curry, no coconut) (~630 kcal)",
+        "Dinner": "Chicken Stew (made with light/skim milk or diluted coconut milk) + 2 Appam (~510 kcal)",
+        "Snack": "Papaya Slices (1 cup) + 1 cup Black Tea/Coffee (~380 kcal)"
+      },
+      "Wednesday": {
+        "Breakfast": "Oats Porridge (40g oats, made with water or skim milk) topped with 1 small Banana and 5 Almonds (~450 kcal)",
+        "Lunch": "1 cup Red Rice + Theeyal (Shallot/Okra curry, minimal oil/coconut) + Curd (low-fat) (~670 kcal)",
+        "Dinner": "Chicken Breast Stir-fry (Kerala pepper seasoning, high protein) + Steamed Vegetable Salad (~520 kcal)",
+        "Snack": "1 serving Sprouted Moong Dal (Cherupayar) Salad (~360 kcal)"
+      },
+      "Thursday": {
+        "Breakfast": "2 Whole Wheat Dosa + Sambar (Lentil-rich, vegetable) (~470 kcal)",
+        "Lunch": "Curd Rice (low-fat curd, 1 cup rice) + Green Salad + Pappadam (1 small, shallow fried) (~600 kcal)",
+        "Dinner": "3 Vegetable Roti (Whole Wheat flatbread) + 1 cup Dal Tadka (Lentil Soup) (~540 kcal)",
+        "Snack": "1 medium Orange + Handful (20g) of Cashews (~390 kcal)"
+      },
+      "Friday": {
+        "Breakfast": "2 Appam + 1 Egg Masala (1 egg) (~480 kcal)",
+        "Lunch": "Fish Polichathu (Kingfish grilled/steamed in banana leaf, minimal oil) + Lemon Rice (small portion, 0.75 cup) (~660 kcal)",
+        "Dinner": "Vegetable & Paneer (Indian Cheese) Stir Fry (100g paneer) + Mixed Greens (~500 kcal)",
+        "Snack": "Buttermilk (Sambharam) + Small Banana (Nendran) (~360 kcal)"
+      },
+      "Saturday": {
+        "Breakfast": "2 Scrambled Eggs (2 whites, 1 yolk) with Onions & Chillies + 1 slice Whole Wheat Toast (~450 kcal)",
+        "Lunch": "Chicken Biryani (Mappila style, portion controlled to 1.5 cups, high lean chicken) + Raita (low-fat curd) (~680 kcal)",
+        "Dinner": "Steamed Fish (Mackerel/Ayala) marinated in Kerala spices + Vegetable Kootu Curry (~520 kcal)",
+        "Snack": "1 Guava + Small handful (15g) Roasted Chana (~350 kcal)"
+      },
+      "Sunday": {
+        "Breakfast": "Puttu (Red Rice, 2 pieces) + Steamed Ripe Plantain (small piece) + Skim Milk (1 cup) (~490 kcal)",
+        "Lunch": "Kerala Sadya Style (Red Rice 1 cup, Avial - less coconut, Sambar, Rasam - thin) (~650 kcal)",
+        "Dinner": "Light Chicken Soup (clear broth, vegetable loaded) + Mixed Vegetable Mezhukkupuratti (minimal oil stir-fry) (~500 kcal)",
+        "Snack": "Tender Coconut Water (Elaneer) + 2 Dates (~360 kcal)"
+      }
+    },
     "todayStats": {
       "caloriesConsumed": 0,
       "caloriesBurned": 0,
-      "waterIntake": 0,
+      "waterIntake": 10,
       "date": "2026-01-18T16:23:48.779Z"
     },
-    "goal": "general fitness"
+    "goal": "muscle gain",
+    "dailyCalorieGoal": 2200,
+    "workouts": [],
+    "weeklyActivity": [
+      {
+        "day": "Mon",
+        "calories": 400
+      },
+      {
+        "day": "Tue",
+        "calories": 700
+      },
+      {
+        "day": "Wed",
+        "calories": 500
+      },
+      {
+        "day": "Thu",
+        "calories": 900
+      },
+      {
+        "day": "Fri",
+        "calories": 600
+      },
+      {
+        "day": "Sat",
+        "calories": 800
+      },
+      {
+        "day": "Sun",
+        "calories": 450
+      }
+    ],
+    "age": "20",
+    "weight": "85",
+    "height": "176"
   },
   {
     "name": "shon",

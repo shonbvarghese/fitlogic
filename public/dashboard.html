@@ -9,6 +9,7 @@
     <link
         href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&family=Oswald:wght@500;700&display=swap"
         rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -17,14 +18,20 @@
         <aside class="sidebar" id="app-sidebar">
             <div class="logo">
                 <h2>FITSHARK</h2>
+                <button id="sidebar-toggle" class="sidebar-toggle" onclick="toggleSidebar()">
+                    <span>◀</span>
+                </button>
             </div>
             <nav>
-                <button class="nav-btn active" onclick="showView('dashboard')"><span>📊</span> Dashboard</button>
-                <button class="nav-btn" onclick="showView('meal-planner')"><span>🥗</span> Meal Planner</button>
-                <button class="nav-btn" onclick="showView('ai-planner')"><span>🤖</span> AI Planner</button>
-                <button class="nav-btn"><span>🏋️</span> Logger</button>
-                <button class="nav-btn"><span>⚙️</span> Settings</button>
-                <button class="nav-btn" onclick="logout()"><span>🚪</span> Exit</button>
+                <button class="nav-btn active" onclick="showView('dashboard')"><span>📊</span>
+                    <span>Dashboard</span></button>
+                <button class="nav-btn" onclick="showView('meal-planner')"><span>🥗</span> <span>Meal
+                        Planner</span></button>
+                <button class="nav-btn" onclick="showView('ai-planner')"><span>🤖</span> <span>AI
+                        Planner</span></button>
+                <button class="nav-btn" onclick="showView('logger')"><span>🏋️</span> <span>Logger</span></button>
+                <button class="nav-btn" onclick="showView('settings')"><span>⚙️</span> <span>Settings</span></button>
+                <button class="nav-btn" onclick="logout()"><span>🚪</span> <span>Exit</span></button>
             </nav>
         </aside>
 
@@ -32,65 +39,137 @@
         <main class="main-content" id="app-main">
             <!-- Dashboard View -->
             <section id="dashboard" class="view">
-                <header>
-                    <h1>Health Dashboard</h1>
-                    <p>Welcome back! Here's your daily summary.</p>
+                <header class="flex-header">
+                    <div>
+                        <h1>Health Dashboard</h1>
+                        <p>Welcome back! Here's your daily summary.</p>
+                    </div>
+                    <div class="streak-hud">
+                        <span>🔥</span> <span id="streak-count">5</span> Day Streak
+                    </div>
                 </header>
 
                 <div class="dashboard-grid">
+                    <!-- Radial Calorie Ring -->
                     <div class="card glass">
                         <h3>Calories</h3>
-                        <div class="stat-value">
-                            <span id="cal-consumed">0</span>
-                            <span class="stat-sub">/ <span id="cal-goal">0</span> kcal</span>
+                        <div class="radial-container">
+                            <svg class="radial-ring" width="180" height="180">
+                                <circle class="radial-ring-bg" cx="90" cy="90" r="70"></circle>
+                                <circle id="radial-progress-fill" class="radial-ring-fill" cx="90" cy="90" r="70">
+                                </circle>
+                            </svg>
+                            <div class="radial-info">
+                                <div class="stat-value"><span id="cal-net">0</span></div>
+                                <div style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase;">
+                                    Net Kcal</div>
+                            </div>
                         </div>
-                        <div class="progress-bar-bg">
-                            <div id="cal-progress" class="progress-bar-fill"></div>
-                        </div>
-                        <div class="stat-details">
-                            <span>Burned: <span id="cal-burned">0</span> kcal</span>
-                            <span>Net: <span id="cal-net">0</span></span>
+                        <div class="macro-hud">
+                            <div class="macro-pip">
+                                <div class="pip-dot" style="background: var(--info-color);"></div>
+                                <small>P: <span id="macro-p">0</span>g</small>
+                            </div>
+                            <div class="macro-pip">
+                                <div class="pip-dot" style="background: var(--warning-color);"></div>
+                                <small>C: <span id="macro-c">0</span>g</small>
+                            </div>
+                            <div class="macro-pip">
+                                <div class="pip-dot" style="background: var(--primary-color);"></div>
+                                <small>F: <span id="macro-f">0</span>g</small>
+                            </div>
                         </div>
                     </div>
 
+                    <!-- Weekly Activity Chart -->
                     <div class="card glass">
                         <h3>Weekly Activity</h3>
-                        <div class="chart-container">
-                            <div class="bar" style="height: 40%"></div>
-                            <div class="bar" style="height: 70%"></div>
-                            <div class="bar" style="height: 50%"></div>
-                            <div class="bar" style="height: 90%"></div>
-                            <div class="bar" style="height: 60%"></div>
-                            <div class="bar" style="height: 80%"></div>
-                            <div class="bar" style="height: 45%"></div>
-                        </div>
-                        <div class="chart-labels">
-                            <span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span>
+                        <div class="chart-container" style="height: 220px;">
+                            <canvas id="activityChart"></canvas>
                         </div>
                     </div>
 
-                    <div class="card glass water-card">
-                        <h3>Water Intake</h3>
-                        <div class="water-stat">
+                    <!-- Next Meal (Strategy Board) -->
+                    <div class="card glass strategy-card">
+                        <h3>Next Planned Meal</h3>
+                        <div id="next-meal-container">
+                            <div class="next-meal-badge">Strategy Insight</div>
+                            <h4 id="next-meal-name" style="font-size: 1.4rem; margin: 0.5rem 0;">No meal planned</h4>
+                            <p id="next-meal-time" style="color: var(--text-muted); margin-bottom: 1.5rem;">Check your
+                                AI Planner</p>
+                            <button class="primary-btn" style="padding: 0.5rem 1rem; font-size: 0.8rem;"
+                                onclick="showView('ai-planner')">Modify Plan</button>
+                        </div>
+                    </div>
+
+                    <!-- Water Intake (Liquid Animation) -->
+                    <div class="card glass water-card"
+                        style="min-height: 250px; display: flex; flex-direction: column; justify-content: space-between;">
+                        <h3 style="position: relative; z-index: 1;">Water Intake</h3>
+                        <div class="water-liquid-container" id="water-liquid">
+                            <div class="water-wave"></div>
+                        </div>
+                        <div class="water-stat" style="position: relative; z-index: 1;">
                             <span id="water-count">0</span>
                             <div class="water-info">
                                 <span class="unit">Glasses</span>
                                 <span class="goal">Goal: <span id="water-goal">0</span></span>
                             </div>
                         </div>
-                        <button id="add-water-btn" class="action-btn">+ Add Glass</button>
+                        <button id="add-water-btn" class="action-btn" style="position: relative; z-index: 1;">+ Add
+                            Glass</button>
+                    </div>
+
+                    <!-- Activity Feed (Live Feed) -->
+                    <div class="card glass">
+                        <h3>Live Activity Feed</h3>
+                        <div class="activity-feed" id="activity-feed">
+                            <!-- Items injected here -->
+                            <div class="activity-item">
+                                <span>Welcome back, FitShark!</span>
+                                <small>Just now</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
+
+                <!-- Quick Log Button -->
+                <button class="primary-btn"
+                    style="position: fixed; bottom: 2rem; right: 2rem; width: 60px; height: 60px; border-radius: 50%; box-shadow: 0 10px 30px var(--primary-glow); z-index: 100;"
+                    onclick="toggleQuickLog()">
+                    <span style="font-size: 2rem;">+</span>
+                </button>
             </section>
+
+            <!-- Quick Log Modal (Hidden) -->
+            <div id="quick-log-modal" class="modal-overlay hidden">
+                <div class="card glass modal-content">
+                    <header class="flex-header">
+                        <h3 style="margin: 0;">Quick Log</h3>
+                        <button class="nav-btn" style="font-size: 1.5rem;" onclick="toggleQuickLog()">&times;</button>
+                    </header>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1.5rem;">
+                        <button class="primary-btn" onclick="toggleQuickLog(); showView('logger')">🏋️ Workout</button>
+                        <button class="primary-btn" onclick="toggleQuickLog(); showView('meal-planner')">🥗
+                            Meal</button>
+                    </div>
+                </div>
+            </div>
 
             <!-- Meal Planner View -->
             <section id="meal-planner" class="view hidden">
                 <header class="flex-header">
                     <div>
-                        <h1>Meal Planner</h1>
-                        <p>Schedule your nutrition for the week.</p>
+                        <h1>Architect Studio</h1>
+                        <p>Design your weekly nutrition with precision.</p>
                     </div>
-                    <button class="primary-btn">Save Plan</button>
+                    <div style="display: flex; gap: 1rem;">
+                        <button class="export-btn" onclick="generateShoppingList()"><span>🛒</span> Shopping
+                            List</button>
+                        <button class="primary-btn" onclick="mirrorMonday()"><span>🔁</span> Mirror Monday</button>
+                        <button class="primary-btn" style="background: var(--info-color);"
+                            onclick="saveMealPlan()"><span>💾</span> Save Plan</button>
+                    </div>
                 </header>
 
                 <div class="planner-container">
@@ -98,13 +177,14 @@
                 </div>
 
                 <div class="favorites-section">
-                    <h3>Favorites (Drag to schedule)</h3>
+                    <h3>Visual Palette (Drag to Canvas)</h3>
                     <div class="favorites-list">
-                        <div class="fav-item" draggable="true">Chicken Salad</div>
-                        <div class="fav-item" draggable="true">Protein Shake</div>
-                        <div class="fav-item" draggable="true">Avocado Toast</div>
-                        <div class="fav-item" draggable="true">Pasta Primavera</div>
-                        <div class="fav-item" draggable="true">Greek Yogurt</div>
+                        <div class="fav-item" draggable="true">🍗 Grilled Chicken & Broccoli</div>
+                        <div class="fav-item" draggable="true">🥗 Quinoa Power Bowl</div>
+                        <div class="fav-item" draggable="true">🥑 Avocado Keto Toast</div>
+                        <div class="fav-item" draggable="true">🍝 Whole Wheat Pesto</div>
+                        <div class="fav-item" draggable="true">🍦 Greek Protein Yogurt</div>
+                        <div class="fav-item" draggable="true">🍳 Spinach Omelette</div>
                     </div>
                 </div>
             </section>
@@ -186,22 +266,157 @@
                     <div class="planner-container">
                         <div class="planner-grid" id="ai-planner-grid"></div>
                     </div>
-                    <button class="btn-primary" onclick="applyToMainPlanner()">Use This Plan</button>
+                    <button class="btn-primary" onclick="applyToMainPlanner()"><span>✨</span> Use This Plan</button>
+                </div>
+            </section>
+
+            <!-- Logger View -->
+            <section id="logger" class="view hidden">
+                <header>
+                    <h1>Workout Logger</h1>
+                    <p>Track your strength progress and iron high scores.</p>
+                </header>
+
+                <div class="logger-grid" style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div class="card glass">
+                        <h3>New Entry</h3>
+                        <form id="workout-form">
+                            <div class="form-group">
+                                <label>Exercise</label>
+                                <input type="text" name="exercise" required placeholder="e.g. Bench Press">
+                            </div>
+                            <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                                <div class="form-group">
+                                    <label>Sets</label>
+                                    <input type="number" name="sets" required placeholder="4">
+                                </div>
+                                <div class="form-group">
+                                    <label>Reps</label>
+                                    <input type="number" name="reps" required placeholder="12">
+                                </div>
+                            </div>
+                            <div class="form-group" style="margin-top: 1rem;">
+                                <label>Weight (kg)</label>
+                                <input type="number" name="weight" required placeholder="60">
+                            </div>
+                            <button type="submit" class="primary-btn" style="width: 100%; margin-top: 1.5rem;">Log
+                                Workout</button>
+                        </form>
+                    </div>
+
+                    <div class="card glass">
+                        <h3>Iron History</h3>
+                        <div id="workout-history" style="max-height: 400px; overflow-y: auto;">
+                            <!-- Workouts injected here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Settings View -->
+            <section id="settings" class="view hidden">
+                <header>
+                    <h1>User Settings</h1>
+                    <p>Configure your evolution parameters.</p>
+                </header>
+
+                <div class="card glass" style="max-width: 600px;">
+                    <form id="settings-form">
+                        <div class="form-grid" style="grid-template-columns: 1fr 1fr; gap: 2rem;">
+                            <div class="form-group">
+                                <label>Age</label>
+                                <input type="number" id="set-age" name="age">
+                            </div>
+                            <div class="form-group">
+                                <label>Height (cm)</label>
+                                <input type="number" id="set-height" name="height">
+                            </div>
+                            <div class="form-group">
+                                <label>Weight (kg)</label>
+                                <input type="number" id="set-weight" name="weight">
+                            </div>
+                            <div class="form-group">
+                                <label>Calorie Goal</label>
+                                <input type="number" id="set-cal" name="dailyCalorieGoal">
+                            </div>
+                        </div>
+                        <div class="form-group" style="margin-top: 1.5rem;">
+                            <label>Goal</label>
+                            <select id="set-goal" name="goal">
+                                <option value="fat loss">Fat Loss</option>
+                                <option value="muscle gain">Muscle Gain</option>
+                                <option value="maintenance">Maintenance</option>
+                                <option value="general fitness">General Fitness</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="primary-btn" style="width: 100%; margin-top: 2rem;">Update
+                            Profile</button>
+                    </form>
                 </div>
             </section>
         </main>
     </div>
 
-    <!-- Multi-page logic -->
-    <script>
-        // Check Auth
-        if (!localStorage.getItem('token')) {
-            window.location.href = '/index.html';
-        }
-    </script>
-    <script src="js/auth.js?v=3"></script>
-    <script src="js/app.js?v=3"></script>
-    <script src="js/diet.js?v=3"></script>
+    <!-- Recipe Preview Modal -->
+    <div id="recipe-modal" class="modal-overlay hidden">
+        <div class="card glass modal-content" style="max-width: 700px;">
+            <header class="flex-header">
+                <h2 id="modal-recipe-name" style="margin: 0; font-family: var(--font-heading);">Recipe Details</h2>
+                <button class="nav-btn" style="font-size: 1.5rem;" onclick="closeRecipeModal()">&times;</button>
+            </header>
+            <div class="recipe-modal-grid">
+                <div>
+                    <img id="modal-recipe-img" src="" class="recipe-img" alt="Recipe">
+                    <div style="margin-top: 1rem; display: flex; gap: 1rem;">
+                        <div class="streak-hud" style="font-size: 0.8rem; padding: 4px 12px;"><span
+                                id="modal-calories">0</span> Kcal</div>
+                        <div class="streak-hud"
+                            style="font-size: 0.8rem; padding: 4px 12px; border-color: var(--info-color); color: var(--info-color); background: rgba(59,130,246,0.1);">
+                            30m Prep</div>
+                    </div>
+                </div>
+                <div>
+                    <h4
+                        style="text-transform: uppercase; color: var(--text-muted); font-size: 0.8rem; letter-spacing: 1px;">
+                        Ingredients</h4>
+                    <ul class="ingredient-list" id="modal-ingredients">
+                        <!-- Loaded dynamically -->
+                    </ul>
+                    <button class="primary-btn" style="width: 100%; margin-top: 1.5rem;"
+                        onclick="closeRecipeModal()">Add to Schedule</button>
+                </div>
+            </div>
+        </div>
+        <!-- Shopping List Modal -->
+        <div id="shopping-modal" class="modal-overlay hidden">
+            <div class="card glass modal-content" style="max-width: 500px;">
+                <header class="flex-header">
+                    <h2 style="margin: 0; font-family: var(--font-heading);">🛒 FitShark Shopping List</h2>
+                    <button class="nav-btn" style="font-size: 1.5rem;" onclick="closeShoppingModal()">&times;</button>
+                </header>
+                <div style="margin-top: 1.5rem;">
+                    <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 1rem;">Prepare your week with
+                        this precision ingredient checklist:</p>
+                    <div id="shopping-list-content" class="activity-feed" style="max-height: 400px; padding: 0.5rem;">
+                        <!-- Ingredients injected here -->
+                    </div>
+                    <button class="primary-btn"
+                        style="width: 100%; margin-top: 1.5rem; background: var(--success-color);"
+                        onclick="window.print()">🖨️ Export / Print List</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Multi-page logic -->
+        <script>
+            // Check Auth
+            if (!localStorage.getItem('token')) {
+                window.location.href = '/index.html';
+            }
+        </script>
+        <script src="js/auth.js?v=3"></script>
+        <script src="js/app.js?v=4"></script>
+        <script src="js/diet.js?v=3"></script>
 </body>
 
 </html>

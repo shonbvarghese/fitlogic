@@ -40,6 +40,16 @@ class LocalUser {
             waterIntake: 0,
             date: new Date()
         };
+        if (!this.workouts) this.workouts = [];
+        if (!this.weeklyActivity) this.weeklyActivity = [
+            { day: 'Mon', calories: 400 },
+            { day: 'Tue', calories: 700 },
+            { day: 'Wed', calories: 500 },
+            { day: 'Thu', calories: 900 },
+            { day: 'Fri', calories: 600 },
+            { day: 'Sat', calories: 800 },
+            { day: 'Sun', calories: 450 }
+        ];
         // Normalize
         if (!this.goal) this.goal = 'general fitness';
     }

@@ -13,19 +13,77 @@ router.get('/', protect, async (req, res) => {
         // Return structured data for the frontend
         res.json({
             profile: {
+                name: user.name,
+                email: user.email,
                 age: user.age,
                 weight: user.weight,
                 height: user.height,
                 fitnessGoal: user.goal || 'general fitness',
                 dailyCalorieGoal: user.dailyCalorieGoal || 2000,
-                waterGoal: user.waterGoal
+                waterGoal: user.waterGoal || 8,
+                nextMeal: { name: 'Grilled Mediterranean Salmon', time: '1:30 PM (Lunch)' }
             },
             stats: user.todayStats || {
                 caloriesConsumed: 0,
                 caloriesBurned: 0,
                 waterIntake: 0
-            }
+            },
+            workouts: user.workouts || [],
+            weeklyActivity: user.weeklyActivity || []
         });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// @desc    Update profile settings
+// @route   POST /api/dashboard/profile
+// @access  Private
+router.post('/profile', protect, async (req, res) => {
+    try {
+        const user = await User.findById(req.user._id);
+        const { age, weight, height, goal, dailyCalorieGoal } = req.body;
+
+        if (age) user.age = age;
+        if (weight) user.weight = weight;
+        if (height) user.height = height;
+        if (goal) user.goal = goal;
+        if (dailyCalorieGoal) user.dailyCalorieGoal = dailyCalorieGoal;
+
+        await user.save();
+        res.json({ success: true, message: 'Settings updated successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+
+// @desc    Log a workout
+// @route   POST /api/dashboard/workouts
+// @access  Private
+router.post('/workouts', protect, async (req, res) => {
+    try {
+        const { exercise, sets, reps, weight } = req.body;
+        const user = await User.findById(req.user._id);
+
+        if (!user.workouts) user.workouts = [];
+
+        const newWorkout = {
+            id: Date.now().toString(),
+            exercise,
+            sets,
+            reps,
+            weight,
+            date: new Date()
+        };
+
+        user.workouts.unshift(newWorkout); // Add to beginning
+
+        // Simple logic: Each set burns some calories? Let's say 50 base for any entry.
+        if (!user.todayStats) user.todayStats = { caloriesConsumed: 0, caloriesBurned: 0, waterIntake: 0 };
+        user.todayStats.caloriesBurned = (user.todayStats.caloriesBurned || 0) + (sets * 10);
+
+        await user.save();
+        res.json({ success: true, workout: newWorkout, caloriesBurned: user.todayStats.caloriesBurned });
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
@@ -70,8 +128,6 @@ router.post('/meals', protect, async (req, res) => {
 
         user.currentMealPlan[day][type] = meal;
 
-        // Mark as modified if it's a nested object (important for some drivers, 
-        // though our mock handles it differently, let's keep it clean)
         await user.save();
 
         res.json(user.currentMealPlan);

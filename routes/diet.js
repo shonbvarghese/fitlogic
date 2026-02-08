@@ -4,9 +4,15 @@ const { GoogleGenerativeAI } = require("@google/generative-ai");
 const User = require('../models/User');
 const { protect } = require('../middleware/authMiddleware');
 
-// Initialize Gemini
-// Note: We initialize this inside the route or globally if key is present.
-// Putting it here assumes key is in process.env when file is loaded, which is fine if dotenv config is early in server.js
+// Simple in-memory cache for diet plans (expires after 1 hour)
+const dietPlanCache = new Map();
+const CACHE_DURATION = 60 * 60 * 1000; // 1 hour in milliseconds
+
+// Helper function to create cache key
+function createCacheKey(params) {
+    const { age, gender, height, weight, goal, activity_level, diet_type, region } = params;
+    return `${age}-${gender}-${height}-${weight}-${goal}-${activity_level}-${diet_type}-${region}`;
+}
 
 // @desc    Generate a 7-day diet plan using Google AI
 // @route   POST /api/diet/generate
@@ -14,6 +20,20 @@ const { protect } = require('../middleware/authMiddleware');
 router.post('/generate', async (req, res) => {
     try {
         const { age, gender, height, weight, goal, activity_level, diet_type, region } = req.body;
+
+        // Check cache first
+        const cacheKey = createCacheKey(req.body);
+        const cachedResult = dietPlanCache.get(cacheKey);
+
+        if (cachedResult && (Date.now() - cachedResult.timestamp < CACHE_DURATION)) {
+            console.log('Returning cached diet plan');
+            return res.json({
+                success: true,
+                targetCalories: cachedResult.data.targetCalories,
+                plan: cachedResult.data.plan,
+                cached: true
+            });
+        }
 
         if (!process.env.GEMINI_API_KEY) {
             return res.status(500).json({ message: "Server Error: GEMINI_API_KEY not configured." });
@@ -59,6 +79,12 @@ router.post('/generate', async (req, res) => {
 
         const jsonResult = JSON.parse(text);
 
+        // Cache the result
+        dietPlanCache.set(cacheKey, {
+            data: jsonResult,
+            timestamp: Date.now()
+        });
+
         // If user is authenticated (via header check manually or if we made this route protected), save it.
         // For this "Public" capable endpoint, we just return it. 
         // If the client sends a token, we could identify user and save.
@@ -73,12 +99,35 @@ router.post('/generate', async (req, res) => {
         res.json({
             success: true,
             targetCalories: jsonResult.targetCalories,
-            plan: jsonResult.plan
+            plan: jsonResult.plan,
+            cached: false
         });
 
     } catch (error) {
         console.error("AI Generation Error:", error);
-        res.status(500).json({ message: "Failed to generate plan. AI service authentication or parsing error." });
+
+        // Handle expired or invalid API key
+        if (error.status === 400 && (error.message?.includes('API key expired') || error.message?.includes('API_KEY_INVALID'))) {
+            return res.status(400).json({
+                message: "API key has expired. Please update your GEMINI_API_KEY in the .env file with a new key from Google AI Studio.",
+                error: "API_KEY_EXPIRED",
+                helpUrl: "https://aistudio.google.com/app/apikey"
+            });
+        }
+
+        // Handle specific rate limit errors
+        if (error.status === 429 || error.message?.includes('quota') || error.message?.includes('rate limit')) {
+            return res.status(429).json({
+                message: "API quota exceeded. Please try again later or upgrade your API plan.",
+                error: "RATE_LIMIT_EXCEEDED",
+                retryAfter: "Please wait a few minutes before trying again."
+            });
+        }
+
+        res.status(500).json({
+            message: "Failed to generate plan. AI service error.",
+            error: error.message
+        });
     }
 });
 
